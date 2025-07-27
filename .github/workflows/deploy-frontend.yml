@@ -16,12 +16,12 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.PORT }}       # зазвичай 22
+          port: ${{ secrets.PORT }}
           script: |
-            # Зайдемо в домашню папку
+            # 1) Переходимо в домашню папку
             cd /home/${{ secrets.USERNAME }}
 
-            # Якщо папки ще нема — клонюємо репо, інакше оновлюємо
+            # 2) Клон чи оновлення репо
             if [ ! -d "Moondreams" ]; then
               git clone https://github.com/vprotsenko-git/Moondreams.git
             else
@@ -31,7 +31,14 @@ jobs:
               cd ..
             fi
 
-            # Перейдімо всередину і зберемо/перезапустимо контейнер
+            # 3) Перевіряємо наявність docker-compose, якщо нема — встановлюємо
+            if ! command -v docker-compose >/dev/null 2>&1; then
+              echo "docker-compose не знайдено, встановлюємо..."
+              sudo apt-get update
+              sudo apt-get install -y docker-compose
+            fi
+
+            # 4) Заходимо в проект і перезапускаємо контейнер
             cd Moondreams
-            docker compose down || true
-            docker compose up -d --build
+            docker-compose down || true
+            docker-compose up -d --build
