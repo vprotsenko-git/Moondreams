@@ -2,9 +2,9 @@
 FROM node:18 AS builder
 
 WORKDIR /app
-# Копіюємо package-файли та ставимо залежності
-COPY package.json package-lock.json ./
-RUN npm ci
+# Копіюємо тільки package.json та ставимо залежності
+COPY package.json ./
+RUN npm install      
 
 # Копіюємо весь код і будуємо production-збірку
 COPY . .
