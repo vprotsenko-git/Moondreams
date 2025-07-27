@@ -31,14 +31,16 @@ jobs:
               cd ..
             fi
 
-            # 3) Перевіряємо наявність docker-compose, якщо нема — встановлюємо
-            if ! command -v docker-compose >/dev/null 2>&1; then
-              echo "docker-compose не знайдено, встановлюємо..."
-              sudo apt-get update
-              sudo apt-get install -y docker-compose
+            # 3) Встановлюємо Docker Compose Plugin локально, якщо його ще немає
+            if ! docker compose version >/dev/null 2>&1; then
+              echo "Встановлюємо Docker Compose Plugin у ~/.docker/cli-plugins..."
+              mkdir -p ~/.docker/cli-plugins
+              curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 \
+                -o ~/.docker/cli-plugins/docker-compose
+              chmod +x ~/.docker/cli-plugins/docker-compose
             fi
 
-            # 4) Заходимо в проект і перезапускаємо контейнер
+            # 4) Переходимо в проект і перезапускаємо контейнери
             cd Moondreams
-            docker-compose down || true
-            docker-compose up -d --build
+            docker compose down || true
+            docker compose up -d --build
