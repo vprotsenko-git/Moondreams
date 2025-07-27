@@ -1,3 +1,4 @@
+# .github/workflows/deploy-frontend.yml
 name: Deploy Frontend
 
 on:
@@ -15,12 +16,22 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.PORT }}
+          port: ${{ secrets.PORT }}       # зазвичай 22
           script: |
-            # Заходимо в домашню папку і оновлюємо код
-            cd /home/${{ secrets.USERNAME }}/Moondreams
-            git pull origin main
+            # Зайдемо в домашню папку
+            cd /home/${{ secrets.USERNAME }}
 
-            # Перезбираємо та перезапускаємо контейнер
-            docker compose down
+            # Якщо папки ще нема — клонюємо репо, інакше оновлюємо
+            if [ ! -d "Moondreams" ]; then
+              git clone https://github.com/vprotsenko-git/Moondreams.git
+            else
+              cd Moondreams
+              git reset --hard
+              git pull origin main
+              cd ..
+            fi
+
+            # Перейдімо всередину і зберемо/перезапустимо контейнер
+            cd Moondreams
+            docker compose down || true
             docker compose up -d --build
