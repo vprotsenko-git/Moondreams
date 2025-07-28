@@ -1,36 +1,40 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import API from '../api'
+import React, { useState } from 'react';
 
 export default function Register() {
-  const [email, setEmail] = useState('')
-  const [pwd, setPwd] = useState('')
-  const nav = useNavigate()
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
 
-  const submit = async e => {
-    e.preventDefault()
-    await API.post('/register', { email, password: pwd })
-    nav('/login')
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('http://35.208.247.187:5000/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || res.statusText);
+      }
+      window.location.href = '/login';
+    } catch (err) {
+      console.error(err);
+      setMessage('Помилка: ' + err.message);
+    }
+  };
 
   return (
-    <form onSubmit={submit} className="form">
-      <h1>Register</h1>
-      <input
-        type="email"
-        placeholder="Email"
-        required
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        required
-        value={pwd}
-        onChange={e => setPwd(e.target.value)}
-      />
-      <button type="submit">Create Account</button>
-    </form>
-  )
+    <div>
+      <h2>Реєстрація</h2>
+      <form onSubmit={handleSubmit}>
+        <input type="text" placeholder="Логін"
+               value={username} onChange={e => setUsername(e.target.value)} required />
+        <input type="password" placeholder="Пароль"
+               value={password} onChange={e => setPassword(e.target.value)} required />
+        <button type="submit">Зареєструватись</button>
+      </form>
+      {message && <p style={{color: 'red'}}>{message}</p>}
+    </div>
+  );
 }
