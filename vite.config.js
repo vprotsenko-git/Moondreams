@@ -1,12 +1,11 @@
-// vite.config.js
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  root: 'public',      // будемо брати index.html з public/
-  build: {
-    outDir: '../dist', // зберігатиметься ../dist
-    emptyOutDir: true,
-  },
+  root: 'public',         // робочий каталог для Vite — public/
   plugins: [react()],
+  build: {
+    outDir: '../dist',    // результат збірки покладемо в /dist поруч із public/
+    emptyOutDir: true
+  }
 })
