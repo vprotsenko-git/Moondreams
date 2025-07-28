@@ -17,6 +17,11 @@ export default function Login() {
       if (!res.ok) {
         throw new Error(data.error || res.statusText);
       }
+      
+         }
+     // Зберігаємо отриманий токен
+     const token = data.access_token;
+     localStorage.setItem('token', token)
       // в Login.jsx, при успіху
       window.location.href = '/generate';
     } catch (err) {
