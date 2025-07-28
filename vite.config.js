@@ -1,11 +1,12 @@
+// vite.config.js
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  root: 'public',         // робочий каталог для Vite — public/
   plugins: [react()],
+  // publicDir: 'public' — це значення за замовчуванням
   build: {
-    outDir: '../dist',    // результат збірки покладемо в /dist поруч із public/
+    outDir: 'dist',
     emptyOutDir: true
   }
 })
