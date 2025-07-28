@@ -20,7 +20,7 @@ export default function Login() {
       
      // Зберігаємо отриманий токен
      const token = data.access_token;
-     localStorage.setItem('token', token);
+     localStorage.setItem('moondreams_token', token);
       // в Login.jsx, при успіху
       window.location.href = '/generate';
     } catch (err) {
