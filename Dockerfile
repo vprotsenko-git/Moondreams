@@ -1,19 +1,17 @@
 FROM node:18 AS builder
 WORKDIR /app
 
- # Копіюємо залежності
-COPY package.json .
+# 1) Встановлюємо залежності
+COPY package.json ./
 RUN npm install
 
- # Копіюємо код
-COPY public public
-COPY src src
-COPY vite.config.js .
+# 2) Копіюємо ВСЮ структуру репо у /app (включно з index.html)
+COPY . .
 
-
-# Збираємо фронтенд з кореня: Vite у конфігурації шукає public/index.html
+# 3) Збираємо фронтенд
 RUN npm run build
 
+# ===== далі стадія з nginx без змін =====
 FROM nginx:stable-alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 EXPOSE 80
