@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Text2Img from './pages/Text2Img';
 import Img2Video from './pages/Img2Video';
+import Generate from './pages/Generate';
 import Upscale from './pages/Upscale';
 import TrainModel from './pages/TrainModel';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -17,6 +18,7 @@ export default function App() {
         <div className="main-content">
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/generate" element={<Generate />} />
             <Route path="/register" element={<Register />} />
 
             <Route
