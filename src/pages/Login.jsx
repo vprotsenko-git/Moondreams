@@ -18,7 +18,6 @@ export default function Login() {
         throw new Error(data.error || res.statusText);
       }
       
-         }
      // Зберігаємо отриманий токен
      const token = data.access_token;
      localStorage.setItem('token', token);
