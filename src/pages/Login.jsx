@@ -1,37 +1,51 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import API from '../api'
+import React, { useState } from 'react';
 
 export default function Login() {
-  const [email, setEmail] = useState('')
-  const [pwd, setPwd] = useState('')
-  const nav = useNavigate()
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
 
-  const submit = async e => {
-    e.preventDefault()
-    const { data } = await API.post('/login', { email, password: pwd })
-    localStorage.setItem('moondreams_token', data.access_token)
-    nav('/text2img')
-  }
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('http://35.208.247.187:5000/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || res.statusText);
+      }
+      // Можна зберегти токен/сесію тут, якщо треба
+      window.location.href = '/';
+    } catch (err) {
+      console.error(err);
+      setMessage('Помилка входу: ' + err.message);
+    }
+  };
 
   return (
-    <form onSubmit={submit} className="form">
-      <h1>Login</h1>
-      <input
-        type="email"
-        placeholder="Email"
-        required
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        required
-        value={pwd}
-        onChange={e => setPwd(e.target.value)}
-      />
-      <button type="submit">Sign In</button>
-    </form>
-  )
+    <div>
+      <h2>Логін</h2>
+      <form onSubmit={handleLogin}>
+        <input
+          type="text"
+          placeholder="Логін"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Пароль"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">Увійти</button>
+      </form>
+      {message && <p style={{ color: 'red' }}>{message}</p>}
+    </div>
+  );
 }
