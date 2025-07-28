@@ -17,8 +17,8 @@ export default function Login() {
       if (!res.ok) {
         throw new Error(data.error || res.statusText);
       }
-      // Можна зберегти токен/сесію тут, якщо треба
-      window.location.href = '/';
+      // в Login.jsx, при успіху
+      window.location.href = '/generate';
     } catch (err) {
       console.error(err);
       setMessage('Помилка входу: ' + err.message);
