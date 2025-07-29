@@ -6,6 +6,24 @@ export default function App() {
   const [img, setImg] = useState(null);
   const [assets, setAssets] = useState([]);
 
+  // Фетчим список ассетів
+  const fetchAssets = async () => {
+    try {
+      const res = await fetch(`/api/assets`);
+      const list = await res.json();
+      setAssets(list);
+    } catch (err) {
+      console.error(err);
+      setAssets([]);
+    }
+  };
+
+  // робимо це один раз на маунті
+  useEffect(() => {
+    fetchAssets();
+  }, []);
+
+  // Генерація + оновлення
   const generate = async () => {
     try {
       const res = await fetch(`/api/text2img`, {
@@ -17,23 +35,16 @@ export default function App() {
       if (!res.ok) {
         alert(data.error || 'Server error');
       } else {
-        setImg(`/api/models/${data.output}`);
+        const newImgUrl = `/api/models/${data.output}`;
+        setImg(newImgUrl);
+        // перезавантажуємо список файлiв (щоби новий теж побачити)
+        fetchAssets();
       }
     } catch (err) {
       console.error(err);
       alert('Network error — перевір бекенд');
     }
   };
-
-  useEffect(() => {
-    fetch(`/api/assets`)
-      .then(r => r.json())
-      .then(setAssets)
-      .catch(err => {
-        console.error(err);
-        setAssets([]);
-      });
-  }, []);
 
   return (
     <div className="app">
@@ -53,13 +64,18 @@ export default function App() {
         </div>
       )}
       <hr />
-      <h2>Assets</h2>
+      <h2>Assets ({assets.length})</h2>
       {assets.length === 0 ? (
         <p>No assets yet.</p>
       ) : (
         <div className="assets-grid">
           {assets.map(f => (
-            <img key={f} src={`/api/models/${f}`} alt={f} className="asset-item" />
+            <img
+              key={f}
+              src={`/api/models/${f}`}
+              alt={f}
+              className="asset-item"
+            />
           ))}
         </div>
       )}
