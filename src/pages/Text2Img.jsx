@@ -6,8 +6,13 @@ export default function Text2Img() {
   const [out, setOut] = useState(null)
 
   const gen = async () => {
-    const { data } = await API.post('/text2img', { prompt })
-    setOut(`${API.defaults.baseURL}/models/${data.output}`)
+    try {
+      const { data } = await API.post('/text2img', { prompt });
+      setOut(`${API.defaults.baseURL}/models/${data.output}`);
+    } catch (err) {
+      console.error(err);
+      alert('Generation failed.');
+    }
   }
 
   return (
@@ -22,5 +27,5 @@ export default function Text2Img() {
       <button onClick={gen}>Generate</button>
       {out && <img src={out} alt="result" className="result-img" />}
     </div>
-  )
+  );
 }
