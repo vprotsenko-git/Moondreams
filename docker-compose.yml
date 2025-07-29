@@ -1,21 +1,26 @@
 services:
   backend:
+    image: moondreams-backend:latest
     build:
       context: ../Moondreams-backend
       dockerfile: Dockerfile
-    image: moondreams-backend:latest
-    # убираем строку ports полностью или закомментируйте:
-    # ports:
-    #   - "5000:5000"
     volumes:
       - ../Moondreams-backend/models:/app/models
+    networks:
+      - moondreams-net
 
   frontend:
+    image: moondreams-frontend:latest
     build:
       context: .
       dockerfile: Dockerfile
-    image: moondreams-frontend:latest
-    depends_on:
-      - backend
     ports:
       - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - moondreams-net
+
+networks:
+  moondreams-net:
+    driver: bridge
