@@ -1,28 +1,48 @@
-import { BrowserRouter as Router, Route, Routes, Navigate, Link } from 'react-router-dom';
-import Text2Img from './pages/Text2Img';
-import Img2Video from './pages/Img2Video';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import { useState } from 'react';
 import './App.css';
 
 function App() {
-  return (
-    <Router>
-      <nav className="navbar">
-        <Link to="/">Text2Img</Link>
-        <Link to="/img2video">Img2Video</Link>
-        <Link to="/login">Login</Link>
-        <Link to="/register">Register</Link>
-      </nav>
+  const [prompt, setPrompt] = useState('');
+  const [imageUrl, setImageUrl] = useState(null);
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-      <Routes>
-        <Route path="/" element={<Text2Img />} />
-        <Route path="/img2video" element={<Img2Video />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
-    </Router>
+  const generate = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/text2img`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setImageUrl(`${API_BASE}/models/${data.output}`);
+      } else {
+        alert(data.error || 'Error generating');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error');
+    }
+  };
+
+  return (
+    <div className="app">
+      <h1>Moondreams • Text → Image</h1>
+      <div className="controls">
+        <input
+          type="text"
+          value={prompt}
+          onChange={e => setPrompt(e.target.value)}
+          placeholder="Enter your prompt..."
+        />
+        <button onClick={generate}>Generate</button>
+      </div>
+      {imageUrl && (
+        <div className="result">
+          <img src={imageUrl} alt="Generated" />
+        </div>
+      )}
+    </div>
   );
 }
 
