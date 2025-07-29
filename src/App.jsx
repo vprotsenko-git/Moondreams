@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 export default function App() {
   const [prompt, setPrompt] = useState('');
   const [img, setImg] = useState(null);
+  const [assets, setAssets] = useState([]);
 
   const generate = async () => {
     try {
-      const res = await fetch(`/text2img`, {
+      const res = await fetch(`/api/text2img`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt })
@@ -16,13 +17,23 @@ export default function App() {
       if (!res.ok) {
         alert(data.error || 'Server error');
       } else {
-        setImg(`/models/${data.output}`);
+        setImg(`/api/models/${data.output}`);
       }
     } catch (err) {
       console.error(err);
       alert('Network error — перевір бекенд');
     }
   };
+
+  useEffect(() => {
+    fetch(`/api/assets`)
+      .then(r => r.json())
+      .then(setAssets)
+      .catch(err => {
+        console.error(err);
+        setAssets([]);
+      });
+  }, []);
 
   return (
     <div className="app">
@@ -39,6 +50,17 @@ export default function App() {
       {img && (
         <div className="result">
           <img src={img} alt="Generated" />
+        </div>
+      )}
+      <hr />
+      <h2>Assets</h2>
+      {assets.length === 0 ? (
+        <p>No assets yet.</p>
+      ) : (
+        <div className="assets-grid">
+          {assets.map(f => (
+            <img key={f} src={`/api/models/${f}`} alt={f} className="asset-item" />
+          ))}
         </div>
       )}
     </div>
