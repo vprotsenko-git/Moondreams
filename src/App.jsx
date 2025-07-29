@@ -1,28 +1,47 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, NavLink, Navigate } from 'react-router-dom';
-import Generate from './Generate';
-import Assets from './Assets';
+import React, { useState } from 'react';
 import './App.css';
 
 export default function App() {
+  const [prompt, setPrompt] = useState('');
+  const [img, setImg] = useState(null);
+  const API = ''; // відносна адреса
+
+  const generate = async () => {
+    try {
+      const res = await fetch(`/text2img`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setImg(`/models/${data.output}`);
+      } else {
+        alert(data.error || 'Error generating');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error — перевір бекенд');
+    }
+  };
+
   return (
-    <Router>
-      <header className="navbar">
-        <NavLink to="/generate" className="nav-item" activeclassname="active">
-          Generate
-        </NavLink>
-        <NavLink to="/assets" className="nav-item" activeclassname="active">
-          Assets
-        </NavLink>
-      </header>
-      <main className="main">
-        <Routes>
-          <Route path="/" element={<Navigate to="/generate" replace />} />
-          <Route path="/generate" element={<Generate />} />
-          <Route path="/assets" element={<Assets />} />
-          <Route path="*" element={<Navigate to="/generate" replace />} />
-        </Routes>
-      </main>
-    </Router>
+    <div className="app">
+      <h1>Moondreams • Text → Image</h1>
+      <div className="controls">
+        <input
+          type="text"
+          value={prompt}
+          onChange={e => setPrompt(e.target.value)}
+          placeholder="Введи prompt..."
+        />
+        <button onClick={generate}>Generate</button>
+      </div>
+      {img && (
+        <div className="result">
+          <img src={img} alt="Generated" />
+        </div>
+      )}
+    </div>
   );
 }
