@@ -1,12 +1,13 @@
-FROM node:18 AS builder
+# build stage
+FROM node:18-alpine AS builder
 WORKDIR /app
-COPY package.json ./
-RUN npm install
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
 COPY . .
-RUN npm run build
+RUN yarn build
 
+# production stage
 FROM nginx:stable-alpine
-# копіюємо власний конфіг (nginx.conf) на місце дефолтного
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
 EXPOSE 80
