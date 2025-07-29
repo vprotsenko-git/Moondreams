@@ -1,48 +1,50 @@
-body {
+body, html, #root {
   margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f5f6f7;
+  padding: 0;
+  height: 100%;
+  font-family: 'Segoe UI', sans-serif;
+  background: #fafafa;
 }
 
-.navbar {
-  background-color: #111;
-  padding: 1rem;
+.app {
   display: flex;
-  gap: 1rem;
-}
-
-.navbar a {
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.page {
+  flex-direction: column;
+  align-items: center;
   padding: 2rem;
 }
 
+h1 {
+  margin-bottom: 1rem;
+}
+
+.controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
 input {
-  padding: 0.5rem;
-  margin-right: 1rem;
   width: 300px;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 button {
   padding: 0.5rem 1rem;
-  background-color: #007bff;
-  border: none;
+  background: #007bff;
   color: white;
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
-  font-weight: bold;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background: #0056b3;
 }
 
-.result-img,
-.result-video {
-  display: block;
-  margin-top: 2rem;
+.result img {
   max-width: 100%;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
