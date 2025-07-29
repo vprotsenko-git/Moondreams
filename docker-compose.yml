@@ -1,20 +1,21 @@
 services:
-  frontend:
-    build:
-      context: .                      # тут ти в папці Moondreams
-      dockerfile: Dockerfile
-    image: moondreams-frontend:latest
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
-
   backend:
     build:
-      context: ../Moondreams-backend   # піднімаємося на каталог вище
+      context: ../Moondreams-backend
       dockerfile: Dockerfile
     image: moondreams-backend:latest
-    ports:
-      - "5000:5000"
+    # убираем строку ports полностью или закомментируйте:
+    # ports:
+    #   - "5000:5000"
     volumes:
       - ../Moondreams-backend/models:/app/models
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: moondreams-frontend:latest
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
