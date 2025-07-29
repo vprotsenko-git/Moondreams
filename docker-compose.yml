@@ -1,11 +1,19 @@
-version: '3.8'
-
+version: "3.8"
 services:
   frontend:
     build:
-      context: .
+      context: ./Moondreams
       dockerfile: Dockerfile
-    container_name: moondreams-frontend
     ports:
       - "80:80"
-    restart: unless-stopped
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./Moondreams-backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./Moondreams-backend/models:/app/models
+    ports:
+      - "5000:5000"
