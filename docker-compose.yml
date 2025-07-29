@@ -1,23 +1,23 @@
 services:
   backend:
-    image: moondreams-backend:latest
     build:
       context: ../Moondreams-backend
       dockerfile: Dockerfile
+    image: moondreams-backend:latest
     volumes:
       - ../Moondreams-backend/models:/app/models
     networks:
       - moondreams-net
 
   frontend:
-    image: moondreams-frontend:latest
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "80:80"
+    image: moondreams-frontend:latest
     depends_on:
       - backend
+    ports:
+      - "80:80"
     networks:
       - moondreams-net
 
