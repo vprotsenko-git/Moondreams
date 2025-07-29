@@ -2,18 +2,21 @@
 FROM node:18-alpine AS builder
 WORKDIR /app
 
-# Копіюємо package.json та package-lock.json (npm)
-COPY package.json package-lock.json ./
-RUN npm ci
+# Копіюємо тільки package.json; lock-файлів у тебе немає, тому їх не чіпаємо
+COPY package.json ./
 
+# Встановлюємо залежності
+RUN npm install
+
+# Копіюємо весь код і збираємо фронтенд
 COPY . .
 RUN npm run build
 
 # ——— Production Stage ———
 FROM nginx:stable-alpine
-# Копіюємо конфіг Nginx
+# Копіюємо власний nginx.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-# Копіюємо збірку з попереднього етапу
+# Копіюємо результати збірки
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 EXPOSE 80
