@@ -4,7 +4,6 @@ import './App.css';
 export default function App() {
   const [prompt, setPrompt] = useState('');
   const [img, setImg] = useState(null);
-  const API = ''; // відносна адреса
 
   const generate = async () => {
     try {
@@ -14,10 +13,10 @@ export default function App() {
         body: JSON.stringify({ prompt })
       });
       const data = await res.json();
-      if (res.ok) {
-        setImg(`/models/${data.output}`);
+      if (!res.ok) {
+        alert(data.error || 'Server error');
       } else {
-        alert(data.error || 'Error generating');
+        setImg(`/models/${data.output}`);
       }
     } catch (err) {
       console.error(err);
@@ -27,7 +26,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <h1>Moondreams • Text → Image</h1>
+      <h1>Moondreams • Text→Image</h1>
       <div className="controls">
         <input
           type="text"
