@@ -21,12 +21,49 @@ export default function App() {
     }
   };
 
+  // Enhanced: On mount, check if a generation is already running
   useEffect(() => {
     fetchAssets();
+    checkGenerationStatusOnMount();
+    // Cleanup polling on unmount
+    return () => {
+      if (statusPollRef.current) clearInterval(statusPollRef.current);
+    };
+    // eslint-disable-next-line
   }, []);
+
+  const checkGenerationStatusOnMount = async () => {
+    try {
+      const res = await fetch('/api/text2img/status');
+      const data = await res.json();
+      if (data.status === "running") {
+        setGenerating(true);
+        setProgress(data.progress || 0);
+        setImg(null);
+        setError('');
+        pollStatus();
+      } else if (data.status === "done" && data.output) {
+        setGenerating(false);
+        setProgress(100);
+        setImg(`/api/models/${data.output}`);
+      } else if (data.status === "error") {
+        setGenerating(false);
+        setProgress(100);
+        setError(data.error || "Unknown error");
+      } else {
+        setGenerating(false);
+        setProgress(0);
+      }
+    } catch (err) {
+      // If backend is down, don't block the UI
+      setGenerating(false);
+      setProgress(0);
+    }
+  };
 
   // Poll generation status
   const pollStatus = () => {
+    if (statusPollRef.current) clearInterval(statusPollRef.current);
     statusPollRef.current = setInterval(async () => {
       try {
         const res = await fetch('/api/text2img/status');
@@ -74,13 +111,6 @@ export default function App() {
       setGenerating(false);
     }
   };
-
-  useEffect(() => {
-    // Cleanup polling on unmount
-    return () => {
-      if (statusPollRef.current) clearInterval(statusPollRef.current);
-    };
-  }, []);
 
   return (
     <div className="app">
