@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 
 export default function App() {
   const [prompt, setPrompt] = useState('');
   const [img, setImg] = useState(null);
   const [assets, setAssets] = useState([]);
+  const [generating, setGenerating] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState('');
+  const statusPollRef = useRef(null);
 
-  // Фетчим список ассетів
   const fetchAssets = async () => {
     try {
       const res = await fetch(`/api/assets`);
@@ -18,13 +21,41 @@ export default function App() {
     }
   };
 
-  // робимо це один раз на маунті
   useEffect(() => {
     fetchAssets();
   }, []);
 
-  // Генерація + оновлення
+  // Poll generation status
+  const pollStatus = () => {
+    statusPollRef.current = setInterval(async () => {
+      try {
+        const res = await fetch('/api/text2img/status');
+        const data = await res.json();
+        setProgress(data.progress || 0);
+        if (data.status === "done" && data.output) {
+          setImg(`/api/models/${data.output}`);
+          setGenerating(false);
+          setProgress(100);
+          fetchAssets();
+          clearInterval(statusPollRef.current);
+        } else if (data.status === "error") {
+          setError(data.error || "Unknown error");
+          setGenerating(false);
+          clearInterval(statusPollRef.current);
+        }
+      } catch (err) {
+        setError("Network error");
+        setGenerating(false);
+        clearInterval(statusPollRef.current);
+      }
+    }, 700);
+  };
+
   const generate = async () => {
+    setError('');
+    setProgress(0);
+    setImg(null);
+    setGenerating(true);
     try {
       const res = await fetch(`/api/text2img`, {
         method: 'POST',
@@ -33,18 +64,23 @@ export default function App() {
       });
       const data = await res.json();
       if (!res.ok) {
-        alert(data.error || 'Server error');
-      } else {
-        const newImgUrl = `/api/models/${data.output}`;
-        setImg(newImgUrl);
-        // перезавантажуємо список файлiв (щоби новий теж побачити)
-        fetchAssets();
+        setError(data.error || 'Server error');
+        setGenerating(false);
+        return;
       }
+      pollStatus();
     } catch (err) {
-      console.error(err);
-      alert('Network error — перевір бекенд');
+      setError("Network error");
+      setGenerating(false);
     }
   };
+
+  useEffect(() => {
+    // Cleanup polling on unmount
+    return () => {
+      if (statusPollRef.current) clearInterval(statusPollRef.current);
+    };
+  }, []);
 
   return (
     <div className="app">
@@ -55,9 +91,21 @@ export default function App() {
           value={prompt}
           onChange={e => setPrompt(e.target.value)}
           placeholder="Введи prompt..."
+          disabled={generating}
         />
-        <button onClick={generate}>Generate</button>
+        <button onClick={generate} disabled={generating || !prompt.trim()}>
+          {generating ? 'Generating...' : 'Generate'}
+        </button>
       </div>
+      {generating && (
+        <div className="progress-bar">
+          <div className="progress" style={{ width: `${progress}%` }} />
+          <span>{progress}%</span>
+        </div>
+      )}
+      {error && (
+        <div className="error">{error}</div>
+      )}
       {img && (
         <div className="result">
           <img src={img} alt="Generated" />
